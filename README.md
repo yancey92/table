@@ -41,7 +41,7 @@ A command line table output tool
 		PrintTableSimple(table)
 	}
 ```
-#### Output result
+
 ```
 NAME        AGE   GENDER   HOBBY         
 Zhang san   23    Man      Basketball    
@@ -59,7 +59,7 @@ Wang wu     21    Man
 		PrintTableBox(table)
 	}
 ```
-#### Output result
+
 ``` 
 ┌───────────┬─────┬────────┬─────────────────┐
 │ NAME      │ AGE │ GENDER │ HOBBY           │

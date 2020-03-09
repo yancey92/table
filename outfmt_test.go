@@ -36,9 +36,9 @@ func TestFmtGet(t *testing.T) {
 
 	table, err := CreateTableCell(stuSlice)
 	if err != nil {
-		PrintTableBox(table)
-	} else {
 		fmt.Println(err)
+	} else {
+		PrintTableBox(table)
 	}
 
 }

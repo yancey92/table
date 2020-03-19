@@ -54,7 +54,7 @@ var m = map[string]bd{
 │ Basketball     │
 │ Ping pang ball │
 └────────────────┘
- */
+*/
 type TableCell struct {
 	Items []string
 }
@@ -66,21 +66,36 @@ type TableCell struct {
  */
 func CreateTableCell(obj interface{}) (models [][]TableCell, err error) {
 	refValue := reflect.ValueOf(obj)
+	//obj must be a Slice
 	if refValue.Kind() != reflect.Slice {
-		err= errors.New(fmt.Sprintf("param \"%T\" should be on slice value", obj))
+		err = errors.New(fmt.Sprintf("param \"%T\" should be on slice value", obj))
 		return
 	}
 
+	// Gets the tag for the field of the struct
+	head := make([]TableCell, 0)
+	// element of obj must be a Struct
+	if reflect.TypeOf(obj).Elem().Kind() != reflect.Struct {
+		err = errors.New(fmt.Sprintln("items of slice should be on struct value"))
+		return
+	}
+	for i := 0; i < reflect.TypeOf(obj).Elem().NumField(); i++ {
+		tag := reflect.TypeOf(obj).Elem().Field(i).Tag.Get(TAG)
+		if tag == `` {
+			tag = reflect.TypeOf(obj).Elem().Field(i).Name
+		}
+		head = append(head, TableCell{[]string{tag}})
+	}
+	models = append(models, head)
+
+	// Gets the contents of each object in the struct
 	valueSlice := make([]interface{}, refValue.Len())
 	for i := 0; i < refValue.Len(); i++ {
 		valueSlice[i] = refValue.Index(i).Interface()
 	}
 
-	head := make([]TableCell, 0)
-	models = append(models, head)
-
 	// Iterate over each object
-	for i, element := range valueSlice {
+	for _, element := range valueSlice {
 
 		rv := reflect.ValueOf(element)
 		rt := reflect.TypeOf(element)
@@ -91,7 +106,7 @@ func CreateTableCell(obj interface{}) (models [][]TableCell, err error) {
 		}
 
 		if rv.Kind() != reflect.Struct {
-			err= errors.New(fmt.Sprintf("items of slice \"%T\" should be on struct value", models))
+			err = errors.New(fmt.Sprintf("items of slice \"%T\" should be on struct value", models))
 			return
 		}
 
@@ -104,14 +119,6 @@ func CreateTableCell(obj interface{}) (models [][]TableCell, err error) {
 			}
 
 			field := rt.Field(n)
-			tag := field.Tag.Get(TAG)
-			if tag == `` {
-				tag = field.Name
-			}
-			if i == 0 {
-				head = append(head, TableCell{[]string{tag}})
-			}
-
 			tc := TableCell{}
 			if field.Type.Kind() == reflect.Slice {
 				for j := 0; j < rv.FieldByName(field.Name).Len(); j++ {
@@ -125,7 +132,6 @@ func CreateTableCell(obj interface{}) (models [][]TableCell, err error) {
 		}
 		models = append(models, model)
 	}
-	models[0] = head
 	return
 }
 
